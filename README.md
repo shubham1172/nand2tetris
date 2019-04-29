@@ -4,21 +4,21 @@ This project is from the course [nand2tetris](https://www.nand2tetris.org/). Fro
 
 ## Table of contents
 1. [Hardware](#hardware) 
-	- [Boolean Logic](#booleanlogic)
-	- [Boolean Arithmetic](#booleanarithmetic)
-	- [Sequential Logic](#sequentiallogic)
+	- [Boolean Logic](#boolean-logic)
+	- [Boolean Arithmetic](#boolean-arithmetic)
+	- [Sequential Logic](#sequential-logic)
 2. [Architecture](#architecture)
-	- [Machine Language](#machinelanguage)
-	- [Computer Architecture](#computerarchitecture) 
+	- [Machine Language](#machine-language)
+	- [Computer Architecture](#computer-architecture) 
 3. [Assembler](#assembler)
-4. [Virtual Machine](#virtualmachine)
-	- [Stack Arithmetic](#stackarithmetic)
-	- [Program Control](#programcontrol) 
+4. [Virtual Machine](#virtual-machine)
+	- [Stack Arithmetic](#stack-arithmetic)
+	- [Program Control](#program-control) 
 5. [Compiler](#compiler)
-	- [High Level Language](#highlevellanguage)
-	- [Syntax Analysis](#syntaxanalysis)
-	- [Code Generation](#codegeneration)
-6. [Operating System](#operatingsystem)
+	- [High Level Language](#high-level-language)
+	- [Syntax Analysis](#syntax-analysis)
+	- [Code Generation](#code-generation)
+6. [Operating System](#operating-system)
 
 # Hardware
 This section aims at building the bare-bones of the computer. We first make simple logic gates and then leverage them to further make more sophisticated hardware. The logic is written in a custom Hardware Description Language (HDL) specified [here](https://docs.wixstatic.com/ugd/44046b_2cc5aac034ae49f4bf1650a3d31df32c.pdf).
