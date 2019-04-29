@@ -42,5 +42,24 @@ CHIP ALU {
         ng; // 1 if (out < 0),  0 otherwise
 
     PARTS:
-   // Put you code here:
+    // preprocesssing
+    Mux16(a=x, b=false, sel=zx, out=xint); // xint = x intermediate
+    Not16(in=xint, out=negx);
+    Mux16(a=xint, b=negx, sel=nx, out=xfin); // xfin = x final
+    Mux16(a=y, b=false, sel=zy, out=yint);
+    Not16(in=yint, out=negy);
+    Mux16(a=yint, b=negy, sel=ny, out=yfin);
+    // function f
+    Add16(a=xfin, b=yfin, out=xyadd);
+    And16(a=xfin, b=yfin, out=xyand);
+    Mux16(a=xyand, b=xyadd, sel=f, out=fout);
+    // postprocessing
+    Not16(in=fout, out=negfout);
+    Mux16(a=fout, b=negfout, sel=no, out=out, out[0..7]=lowerout, out[8..15]=higherout, out[15]=msbout);
+    // status bits
+    Or8Way(in=lowerout, out=loweror); // OR of lower byte
+    Or8Way(in=higherout, out=higheror); // OR of higher byte
+    Or(a=loweror, b=higheror, out=orout); // 1 if any bit is set in out, 0 otherwise
+    Mux(a=true, b=false, sel=orout, out=zr);
+    Mux(a=false, b=true, sel=msbout, out=ng);
 }
