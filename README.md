@@ -1,12 +1,13 @@
 
+
 # nand2tetris
-This project is from the course [nand2tetris](https://www.nand2tetris.org/). From building logic gates to writing a high level language and an operating system in it, the outcome of this project is a modern-day computer which I have documented below.
+This project is from the course [nand2tetris](https://www.nand2tetris.org/). From building logic gates to writing a high level language and an operating system in it, the outcome of this project is a modern-day 16-bit computer which I have documented below.
 
 ## Table of contents
 1. [Hardware](#hardware) 
-	- [Boolean Logic](#boolean-logic)
-	- [Boolean Arithmetic](#boolean-arithmetic)
-	- [Sequential Logic](#sequential-logic)
+	- [Logic Gates](#logic-gates)
+	- [ALU](#alu)
+	- [Registers, RAM, and PC](#registers-ram-and-pc)
 2. [Architecture](#architecture)
 	- [Machine Language](#machine-language)
 	- [Computer Architecture](#computer-architecture) 
@@ -23,7 +24,7 @@ This project is from the course [nand2tetris](https://www.nand2tetris.org/). Fro
 # Hardware
 This section aims at building the bare-bones of the computer. We first make simple logic gates and then leverage them to further make more sophisticated hardware. The logic is written in a custom Hardware Description Language (HDL) specified [here](https://docs.wixstatic.com/ugd/44046b_2cc5aac034ae49f4bf1650a3d31df32c.pdf).
 
-## Boolean Logic
+## Logic Gates
 All the logic gates are created from the primitive Nand gate. Here are a list of gates that were implemented.
 
 - Nand, [Not](./projects/01/Not.hdl), [And](./projects/01/And.hdl), [Or](./projects/01/Or.hdl), [Xor](./projects/01/Xor.hdl)
@@ -32,8 +33,8 @@ All the logic gates are created from the primitive Nand gate. Here are a list of
 - [Or8Way](./projects/01/Or8Way.hdl) - Or(x0,...,x7)
 - [Mux4Way16](./projects/01/Mux4Way16.hdl), [Mux8Way16](./projects/01/Mux8Way16.hdl), [DMux4Way16](./projects/01/DMux4Way16.hdl), [DMux8Way16](./projects/01/DMux8Way16.hdl) - 16-bit wide with 4/8 inputs
 
-## Boolean Arithmetic
-We implement our ALU in this section. Using minimal hardware, our ALU can compute eighteen functions. It uses 6 control bits where each bit refers to a certain elementary operation.
+## ALU
+This ALU can compute eighteen functions using some minimal hardware design. It uses 6 control bits where each bit refers to a certain elementary operation.
 
 |control-bit|description|
 |---|---|
@@ -80,3 +81,13 @@ The following chips were implemented in this section
 * [ALU](./projects/02/ALU.hdl)
 
 **Future work**: It will be better to replace the naive ripple carry adder in Add16 with a more efficient one like a carry-lookahead adder.
+
+## Registers, RAM and PC
+Storage is realized using Data Flip-Flops (DFFs). Registers are 16-bit wide and are composed of DFFs. These registers are further stacked to create the random access memory (RAM). It allows reading/writing data from/to any address in constant time, irrespective of the physical location.
+
+Finally, a program counter is also realized using a 16-bit register which has the following functions - reset to zero, load a particular value, and increment the current value.
+
+List of chips implemented
+* [Bit](./projects/03/a/Bit.hdl), [Register](./projects/03/a/Register.hdl)
+* [RAM8](./projects/03/a/RAM8.hdl), [RAM64](./projects/03/a/RAM64.hdl), [RAM512](./projects/03/b/RAM512.hdl), [RAM4K](./projects/03/b/RAM4K.hdl), [RAM16K](./projects/03/b/16K.hdl)
+* [PC](./projects/03/a/PC.hdl)
