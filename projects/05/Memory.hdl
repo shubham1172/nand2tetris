@@ -27,5 +27,14 @@ CHIP Memory {
     OUT out[16];
 
     PARTS:
-    // Put your code here:
+    // 1 RAM16K for data memory
+    // 1 Screen and 1 Keyboard
+    DMux(in=load, sel=address[14], a=load0, b=load1); // data or io
+    RAM16K(in=in, load=load0, address[0..13]=address[0..13], out=out0);
+    DMux(in=load1, sel=address[13], a=load10, b=load11); // screen or keyboard
+    Screen(in=in, load=load10, address=address[0..12], out=out10);
+    Keyboard(out=out11);
+    /** multiplex the right output */
+    Mux16(a=out10, b=out11, sel=address[13], out=out1);
+    Mux16(a=out0, b=out1, sel=address[14], out=out);
 }

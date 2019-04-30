@@ -39,5 +39,36 @@ CHIP CPU {
         pc[15];          // address of next instruction
 
     PARTS:
-    // Put your code here:
+    // ALU
+    // Counter - PC
+    // Registers - A and D
+    DMux(in=true, sel=instruction[15], a=typeA, b=typeC); // determine i-type
+    Mux4Way16(a=false, b=outAlu, c=instruction, d=instruction, // determine A input
+            sel[1]=typeA, sel[0]=instruction[5], out=inA);
+    Or(a=typeA, b=instruction[5], out=loadA); // load A?
+    And(a=typeC, b=instruction[4], out=loadD); // load D?
+    ARegister(in=inA, load=loadA, out=outA, out[0..14]=addressM);
+    DRegister(in=outAlu, load=loadD, out=outD);
+    Mux16(a=outA, b=inM, sel=instruction[12], out=outAluMux); // choose ALU second i/p src
+    ALU(x=outD, y=outAluMux, zx=instruction[11], nx=instruction[10], 
+        zy=instruction[9], ny=instruction[8], f=instruction[7], 
+        no=instruction[6], out=outAlu, out=outM, zr=alueq, ng=alult);
+    And(a=typeC, b=instruction[3], out=writeM); // write to M?
+    /** jump conditions */
+    DMux8Way(in=typeC, sel[0]=instruction[0], sel[1]=instruction[1],
+            sel[2]=instruction[2], b=jgt, c=jeq, d=jge, e=jlt, f=jne, g=jle, h=jmp);
+    Not(in=alueq, out=alune);
+    Not(in=alult, out=aluge);
+    Or(a=alueq, b=alult, out=alule);
+    And(a=alune, b=aluge, out=alugt);
+    And(a=jgt, b=alugt, out=j1);
+    And(a=jeq, b=alueq, out=j2);
+    And(a=jge, b=aluge, out=j3);
+    And(a=jlt, b=alult, out=j4);
+    And(a=jne, b=alune, out=j5);
+    And(a=jle, b=alule, out=j6);
+    Or8Way(in[0]=false, in[1]=j1, in[2]=j2, in[3]=j3, in[4]=j4, in[5]=j5, in[6]=j6,
+        in[7]=jmp, out=jump); // to jump or not to jump
+    Not(in=jump, out=inc);  // increment otherwise
+    PC(in=outA, load=jump, inc=inc, reset=reset, out[0..14]=pc);
 }
