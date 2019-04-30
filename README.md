@@ -1,5 +1,3 @@
-
-
 # nand2tetris
 This project is from the course [nand2tetris](https://www.nand2tetris.org/). From building logic gates to writing a high level language and an operating system in it, the outcome of this project is a modern-day 16-bit computer which I have documented below.
 
@@ -9,17 +7,21 @@ This project is from the course [nand2tetris](https://www.nand2tetris.org/). Fro
 	- [ALU](#alu)
 	- [Registers, RAM, and PC](#registers-ram-and-pc)
 2. [Architecture](#architecture)
-	- [Machine Language](#machine-language)
-	- [Computer Architecture](#computer-architecture) 
-3. [Assembler](#assembler)
-4. [Virtual Machine](#virtual-machine)
+	- [Instruction Set](#instruction-set)
+		- [The A-instruction](#the-a-instruction)
+ 		- [The C-instruction](#the-c-instruction)
+	- [Memory](#memory)
+	- [CPU](#cpu)
+	- [Computer](#computer)
+4. [Assembler](#assembler)
+5. [Virtual Machine](#virtual-machine)
 	- [Stack Arithmetic](#stack-arithmetic)
 	- [Program Control](#program-control) 
-5. [Compiler](#compiler)
+6. [Compiler](#compiler)
 	- [High Level Language](#high-level-language)
 	- [Syntax Analysis](#syntax-analysis)
 	- [Code Generation](#code-generation)
-6. [Operating System](#operating-system)
+7. [Operating System](#operating-system)
 
 # Hardware
 This section aims at building the bare-bones of the computer. We first make simple logic gates and then leverage them to further make more sophisticated hardware. The logic is written in a custom Hardware Description Language (HDL) specified [here](https://docs.wixstatic.com/ugd/44046b_2cc5aac034ae49f4bf1650a3d31df32c.pdf).
@@ -91,3 +93,88 @@ List of chips implemented
 * [Bit](./projects/03/a/Bit.hdl), [Register](./projects/03/a/Register.hdl)
 * [RAM8](./projects/03/a/RAM8.hdl), [RAM64](./projects/03/a/RAM64.hdl), [RAM512](./projects/03/b/RAM512.hdl), [RAM4K](./projects/03/b/RAM4K.hdl), [RAM16K](./projects/03/b/16K.hdl)
 * [PC](./projects/03/a/PC.hdl)
+
+# Architecture
+Bringing together all the circuitry, the computer is assembled in this section. The resultant device is a 16-bit von Neumann platform consisting of a CPU, two memory modules and two memory-mapped I/O devices - a screen and a keyboard.
+
+There are two 16-bit registers A and D where D is the data register which intends at storing values, and A acts as a dual purpose register which can store both data and address. Depending on the instruction context, A's value can be interpreted as either data or a memory address. The A register allows direct memory access.
+
+## Instruction Set
+The complete instruction set reference is available at [this](https://docs.wixstatic.com/ugd/44046b_7ef1c00a714c46768f08c459a6cab45a.pdf).  There are two generic types of instructions available - *A-instruction* or *address instruction*, and *C-instruction* or *compute instruction*. Each instruction has a binary and symbolic representation.
+
+### The A-instruction
+This is used to set the A register to a 15-bit value. <br>
+Instruction: ```@value``` <br>
+Binary: ```0 v v v``` ```v v v v``` ```v v v v``` ```v v v v``` <br>
+
+A-instruction allows setting a constant value at a memory address. It also allows the C-instruction to manipulate a certain memory location or make a jump to a particular location. The left-most bit ```0``` is the A-instruction opcode and the following bits are the 15-bit value.
+
+### The C-instruction
+C-instruction accounts for all the compute tasks on this computer. <br>
+Instruction:```dest=comp;jump``` // Either dest/jump maybe empty and symbols are omitted accordingly. <br>
+Binary:```1 x x a``` ```c1 c2 c3 c4``` ```c5 c6 d1 d2``` ```d3 j1 j2 j3```<br>
+
+The left-most bit ```1``` is the C-instruction opcode and the next two bits are don't cares.  The ```comp``` field is specified by the a-bit and the six c-bits. The a-bit is responsible for selecting either A-register or Memory and the c-bits are the control bits for the ALU. The ```dest``` field is given by the d-bits which allow us to select a destination. Each bit is mapped to a particular location where data is written if the bit is set. 
+
+|d-bit|location|
+|---|---|
+d1|A-register|
+d2|D-register|
+d3|Memory|
+
+The last three bits are the jump bits which decide when to make the jump. Together with the two status bits from ALU, they guide the PC in deciding the next address.
+
+j1|j2|j2|Mnemonic
+---|---|---|---
+0|0|0|null
+0|0|1|JGT
+0|1|0|JEQ
+0|1|1|JGE
+1|0|0|JLT
+1|0|1|JNE
+1|1|0|JLE
+1|1|1|JMP
+
+## Memory
+This computer has two memory banks - instruction memory and data memory. The instruction memory is implemented using a ROM chip with 32K addressable 16-bit registers. The data memory is a RAM device consisting of 32K addressable 16-bit registers with provision for memory mapped IO.
+
+The data memory is laid out with the RAM in the upper section, followed by IO memory buffers for the two peripheral devices - a 512 x 256 display and a keyboard. Data memory supports 15-bit addressing.
+<table>
+	<thead>
+		<tr>
+			<th> address </th>
+			<th> component </th>
+			<th> capacity </th>
+		</tr>
+	</thead>
+	<tbody>
+		<tr> 
+			<td><center>0x0000 <br> - <br> 0x3FFF</center></td>
+			<td>RAM </td>
+			<td> 16K </td>
+		</tr>
+		<tr>
+			<td><center>0x4000 <br> - <br> 0x5FFF </center></td>
+			<td> Screen </td>
+			<td> 8K </td>
+		</tr>
+		<tr>
+			<td>0x6000</td>
+			<td> Keyboard </td>
+			<td> 1 </td>
+		</tr>
+	</tbody>
+</table>
+
+Implementation: [Memory Chip](./projects/05/Memory.hdl).
+## CPU
+The CPU consists on the ALU, two registers A and D, and a program counter PC. It fetches the instruction from the instruction memory and decodes it using internal circuitry of logic. It then executes the instruction and writes back the data.
+![CPU](https://imgur.com/FR7RlI3.png)
+<br><center>src: [nand2tetris computer architecture](https://docs.wixstatic.com/ugd/44046b_552ed0898d5d491aabafd8a768a87c6f.pdf) </center>
+
+The control bits in the image above are labelled *c*. Different bits are routed to different parts of the CPU.
+
+Implementation: [CPU Chip](./projects/05/CPU.hdl).
+## Computer
+Finally, the computer can be realized by connecting the instruction memory, CPU and the data memory. Final implementation - [Computer](./projects/05/Computer.hdl). This marks the complete hardware which powers everything on this device.
+
