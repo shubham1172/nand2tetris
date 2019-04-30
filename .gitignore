@@ -1,2 +1,4 @@
 *.pdf
 tools/
+.idea
+__pycache__
