@@ -179,7 +179,8 @@ Implementation: [CPU Chip](./projects/05/CPU.hdl).
 Finally, the computer can be realized by connecting the instruction memory, CPU and the data memory. Final implementation - [Computer](./projects/05/Computer.hdl). This marks the complete hardware which powers everything on this device.
 
 # Assembler
-An assembler is a piece of software that converts an assembly code into the device's machine code. This assembler is written in python and follows the instruction set as specified [above](#instruction-set). The assembler API is specified by [this](https://docs.wixstatic.com/ugd/44046b_b73759b866b249a0b3a715bf5a18f668.pdf).  <br> To assemble a program: <br> 
+An assembler is a piece of software that converts an assembly code into the device's machine code. This assembler is written in python and follows the instruction set as specified [above](#instruction-set). The assembler API is specified by [this](https://docs.wixstatic.com/ugd/44046b_b73759b866b249a0b3a715bf5a18f668.pdf). <br> <br>
+To assemble a program: <br> 
 ```$ assembler.py /path/to/file.asm``` <br>
 
 All mnemonic lookup hashtables are defined in [code](./assembler/code.py).<br>
