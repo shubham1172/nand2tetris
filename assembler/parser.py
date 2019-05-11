@@ -3,7 +3,7 @@ Parse the assembly into machine code
 
 @author:shubham1172
 """
-import code
+import convert
 from enum import Enum
 from symbol_table import SymbolTable
 
