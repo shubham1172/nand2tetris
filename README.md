@@ -21,9 +21,10 @@ This project is from the course [nand2tetris](https://www.nand2tetris.org/). Fro
 	- [CPU](#cpu)
 	- [Computer](#computer)
 4. [Assembler](#assembler)
-5. [Virtual Machine](#virtual-machine)
-	- [Stack Arithmetic](#stack-arithmetic)
-	- [Program Control](#program-control) 
+5. [Jack Virtual Machine](#jack-virtual-machine)
+	- [The Stack](#the-stack)
+	- [Program Control](#program-control)
+	- [JVM and Hack](#jvm-and-hack)
 6. [Compiler](#compiler)
 	- [High Level Language](#high-level-language)
 	- [Syntax Analysis](#syntax-analysis)
@@ -174,6 +175,7 @@ The data memory is laid out with the RAM in the upper section, followed by IO me
 </table>
 
 Implementation: [Memory Chip](./projects/05/Memory.hdl).
+
 ## CPU
 The CPU consists on the ALU, two registers A and D, and a program counter PC. It fetches the instruction from the instruction memory and decodes it using internal circuitry of logic. It then executes the instruction and writes back the data.
 ![CPU](https://imgur.com/FR7RlI3.png)
@@ -182,5 +184,117 @@ The CPU consists on the ALU, two registers A and D, and a program counter PC. It
 The control bits in the image above are labelled *c*. Different bits are routed to different parts of the CPU.
 
 Implementation: [CPU Chip](./projects/05/CPU.hdl).
+
 ## Computer
 Finally, the computer can be realized by connecting the instruction memory, CPU and the data memory. Final implementation - [Computer](./projects/05/Computer.hdl). This marks the complete hardware which powers everything on this device.
+Finally, the computer can be realized by connecting the instruction memory, CPU and the data memory. Final implementation - [Computer](./projects/05/Computer.hdl). This marks the complete hardware which powers everything on this device.
+
+# Assembler
+An assembler is a piece of software that converts an assembly code into the device's machine code. This assembler is written in python and follows the instruction set as specified [above](#instruction-set). The assembler API is specified by [this](https://docs.wixstatic.com/ugd/44046b_b73759b866b249a0b3a715bf5a18f668.pdf). <br> <br>
+To assemble a program: <br> 
+```$ assembler.py /path/to/file.asm``` <br>
+
+All mnemonic lookup hashtables are defined in [code](./assembler/code.py).<br>
+All predefined symbols and symbol hashtable are defined in [symbol_table](./assembler/symbol_table.py). 
+
+# Jack Virtual Machine
+A virtual machine facilitates a two-tier compilation for our code. It handles intermediate logic and allows the high-level language to leverage its architecture than compile to raw assembly which is a really complex task. A VM translator is realized which translates program in the VM language to the Hack assembly. It is stack-based and supports four types of commands:
+
+| | |
+|---|---|
+|Arithmetic|Perform arithmetic and logical operations on stack|
+|Memory Access|Transfer data b/w stack and memory segments| 
+|Program Flow|Conditional and unconditional braching ops|
+|Function Calling|Call functions and return from them|
+
+## Stack Arithmetic
+
+### Arithmetic/Logical commands
+
+There are nine commands out of which two are unary and seven are binary. The stack uses -1 (0xFFFF) for true and 0 (0x0000) for false.
+
+|command|action|
+|---|---|
+|add|pop y, pop x, push x+y|
+|sub|pop y, pop x, push x-y|
+|and|pop y, pop x, push x&y|
+|or|pop y, pop x, push x\|y|
+|lt|pop y, pop x, push -1 if x<y, else 0|
+|gt|pop y, pop x, push -1 if x>y, else 0|
+|eq|pop y, pop x, push -1 if x=y, else 0|
+|neg|pop x, push -x|
+|not|pop x, push !x|
+
+### Memory access commands
+
+Memory commands can manipulate eight separate virtual memory segments. The command uses two variables which can select any memory location together. 
+
+#### Pointer-based addressing
+
+|segment|location|purpose|notes|
+|---|---|---|---|
+|argument|*(ARG+index)|store function's arguments|private to a function|
+|local|*(LCL+index)|store function's local variables|private to a function|
+|this|*(THIS+index)|store field variables of current object|can be used to manipulate certain heap areas|
+|that|*(THAT+index)|store array entries|<center>"</center>|
+
+#### Absolute addressing
+
+|segment|location|purpose|notes|
+|---|---|---|---|
+|pointer|THIS(0) or THAT(1)|alter base ptrs for this/that segments|<center>-</center>|
+|temp|R5-R12|global temporary variables|public access to everyone|
+|static|filename.index|store static variables of a file|all functions in the file share it|
+|constant|@index|store constants 0-(2^15-1) |emulated for consistency - pseudo segment|
+
+These two commands can essentially realize any memory operation.
+
+<pre>push <i>segment index</i></pre>
+push the value at _index_ in _segment_ to the stack <br>
+_segment_ can be - argument, local, static, constant, this, that, pointer or temp.<br>
+_index_ is a non-negative integer.
+
+<pre>pop <i>segment index</i></pre>
+pop value off the stack and store at _index_ in _segment_<br>
+_segment_ can be - argument, local, static, this, that, pointer or temp.<br>
+_index_ is a non-negative integer.
+
+### Data structures
+
+There are two implicit data structures managed by the Virtual Machine without any explicit implementation in the software. Their state is managed with carefully written pseudo commands.
+
+1. Stack - The working memory of the VM operations is a stack. All operations are facilitated using a stack.
+2. Heap- An area in RAM dedicated for storing objects and data structures like arrays.
+
+## Program Control
+
+## JVM and Hack
+
+Abstract notions of the VM defined above sounds good, but there should be a contract between the principles listed and the hardware it will run on, i.e. the Hack computer.
+
+### RAM Usage
+
+The Hack data memory consists of 32k 16-bit words - refer [memory](#Memory). The VM implementation uses the space as follows
+
+|Address|Usage|
+|---|---|
+|0-15|16 virtual registers (described below)|
+|16-255|Static variables|
+|256-2047|Stack memory|
+|2048-16383|Heap memory|
+|16384-24575|Memory mapped I/O|
+
+### Hack registers
+
+The first 16 registers can be addressed using the assembly as R0-R15. However, VM introduces some conventions for easy readibility and accessibility. 
+
+|Register(s)|Name|Usage|
+|---|---|---|
+|R0|SP|Stack Pointer|
+|R1|LCL|Points to _local_ segment|
+|R2|ARG|Points to _argument_ segment|
+|R3|THIS|Points to _this_ segment (in heap)|
+|R4|THAT|Points to _that_ segment (in heap)|
+|R5-R12|-|Holds content of _temp_ segment|
+|R13-R15|-|Can be used as general-purpose registers|
+

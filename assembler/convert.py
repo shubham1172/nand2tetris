@@ -1,10 +1,8 @@
 """
-Contains code for various mnemonics
+Convert mnemonics into machine code
 
 @author:shubham1172
 """
-import re
-
 
 def dest(mnemonic):
     """
