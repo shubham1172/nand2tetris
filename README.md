@@ -194,7 +194,7 @@ An assembler is a piece of software that converts an assembly code into the devi
 To assemble a program: <br> 
 ```$ assembler.py /path/to/file.asm``` <br>
 
-All mnemonic lookup hashtables are defined in [code](./assembler/code.py).<br>
+All mnemonic lookup hashtables are defined in [convert](./assembler/convert.py).<br>
 All predefined symbols and symbol hashtable are defined in [symbol_table](./assembler/symbol_table.py). 
 
 # Jack Virtual Machine
