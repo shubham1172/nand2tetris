@@ -18,9 +18,13 @@ operation_symbol = {
     "sub": "-",
     "and": "&",
     "or": "|",
-    "neg": "~",
-    "not": "!"
+    "neg": "-",
+    "not": "!",
+    "eq": "JNE",
+    "gt": "JLE",
+    "lt": "JGE"
 }
+
 
 def _get_base_address(segment, index="0"):
     """
@@ -37,6 +41,7 @@ def _get_base_address(segment, index="0"):
         return str(int(segment_symbol[segment]) + int(index))
     else:
         return segment_symbol[segment]
+
 
 def push(segment, index):
     """
@@ -56,7 +61,7 @@ def push(segment, index):
     M=D     // *(SP-1) = *addr
     """
     if segment == 'constant':
-        set_data =  ["D=A"]
+        set_data = ["D=A"]
     elif segment in ['pointer', 'temp', 'static', 'internal']:
         set_data = ["D=M"]
     else:
@@ -74,6 +79,7 @@ def push(segment, index):
         "A=M-1",
         "M=D"
     ]
+
 
 def pop(segment, index):
     """
@@ -120,10 +126,12 @@ def pop(segment, index):
             "M=D"
         ]
 
-def arithmetic(operation):
+
+def arithmetic(operation, counter):
     """
     perform and arithmetic operation
     :param operation: one of the nine operations
+    :param counter: unique value to distinguish labels
     algorithm:
     unary - pop R13, R15=op(R13), push R15
     binary - pop R13, pop R14, R15=op(R13,R14), push R15
@@ -131,7 +139,12 @@ def arithmetic(operation):
     out = pop('internal', 0)        # pop R13
     # unary operation
     if operation in ['neg', 'not']:
-        out += ['R15=%sR13' % operation_symbol[operation]]
+        out += [
+            "@13",
+            "D=%sM" % operation_symbol[operation],
+            "@15",
+            "M=D"
+        ]
     # binary operation
     else:
         out += pop('internal', 1)  # pop R14
@@ -144,8 +157,23 @@ def arithmetic(operation):
                 "@15",
                 "M=D"
             ]
-            # out += ['R15=R13%sR14' % operation_symbol[operation]]
         else:
-            pass
+            # lt, gt, eq
+            out += [
+                "@13",
+                "D=M",
+                "@14",
+                "D=M-D",
+                "@false%d" % counter,
+                "D;%s" % operation_symbol[operation],
+                "D=-1",
+                "@set%d" % counter,
+                "0;JMP",
+                "(false%d)" % counter,
+                "D=0",
+                "(set%d)" % counter,
+                "@15",
+                "M=D"
+            ]
     out += push('internal', 2)     # push R15
     return out

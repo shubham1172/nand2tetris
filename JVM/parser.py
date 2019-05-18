@@ -105,7 +105,9 @@ class Parser:
 
     def parse(self):
         out = []
+        counter = 0     # will be used to label things
         while self.has_more_commands():
+            counter += 1
             command = self.next_command()
             c_type = Parser.command_type(command)
             if c_type == CommandType.PUSH:
@@ -113,7 +115,5 @@ class Parser:
             elif c_type == CommandType.POP:
                 out += convert.pop(Parser.arg1(command), Parser.arg2(command))
             elif c_type == CommandType.ARITHMETIC:
-                out += convert.arithmetic(command)
+                out += convert.arithmetic(command, counter)
         return [line + '\n' for line in out]
-
-
