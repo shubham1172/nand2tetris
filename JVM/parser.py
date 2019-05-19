@@ -6,16 +6,17 @@ Parse the VM code into Hack machine code
 import convert
 from enum import Enum
 
+
 class CommandType(Enum):
     ARITHMETIC = 0,
-    PUSH=1,
-    POP=2,
-    LABEL=3,
-    GOTO=4,
-    IF=5,
-    FUNCTION=6,
-    RETURN=7,
-    CALL=8
+    PUSH = 1,
+    POP = 2,
+    LABEL = 3,
+    GOTO = 4,
+    IF = 5,
+    FUNCTION = 6,
+    RETURN = 7,
+    CALL = 8
 
 
 class Parser:
@@ -105,10 +106,11 @@ class Parser:
 
     def parse(self):
         out = []
-        counter = 0     # will be used to label things
+        counter = 0  # will be used to label things
         while self.has_more_commands():
             counter += 1
             command = self.next_command()
+            out += ["// %s" % command]
             c_type = Parser.command_type(command)
             if c_type == CommandType.PUSH:
                 out += convert.push(Parser.arg1(command), Parser.arg2(command))

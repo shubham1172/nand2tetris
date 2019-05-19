@@ -1,4 +1,5 @@
 *.pdf
+*.zip
 tools/
 .idea
 __pycache__

@@ -36,7 +36,7 @@ def _get_base_address(segment, index="0"):
     if segment == 'constant':
         return index
     elif segment == 'pointer':
-        return 'this' if index == "0" else 'that'
+        return segment_symbol['this'] if index == "0" else segment_symbol['that']
     elif segment in ['static', 'temp', 'internal']:
         return str(int(segment_symbol[segment]) + int(index))
     else:
@@ -115,7 +115,7 @@ def pop(segment, index):
             "@%s" % _get_base_address(segment),
             "D=M",
             "@%s" % index,
-            "D=D+A"
+            "D=D+A",
             "@15",
             "M=D",
             "@SP",
