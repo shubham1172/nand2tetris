@@ -27,7 +27,7 @@ except NameError:
     print("file must have a .vm extension")
     sys.exit(-1)
 
-parser = Parser(data)
+parser = Parser(data, ".".join(file.name.split("/")[-1].split(".")[:-1]))
 out = parser.parse()
 try:
     file = open(args.path[:-3] + '.asm', 'w')

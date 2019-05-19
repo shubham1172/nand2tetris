@@ -20,12 +20,14 @@ class CommandType(Enum):
 
 
 class Parser:
-    def __init__(self, data):
+    def __init__(self, data, filename):
         """
         :param data: lines of VM program
+        :param filename: filename of the program
         """
         self.current_idx = -1
         self.data = data
+        self.filename = filename
         self.preprocess()
 
     def preprocess(self):
@@ -112,9 +114,9 @@ class Parser:
             out += ["// %s" % command]
             c_type = Parser.command_type(command)
             if c_type == CommandType.PUSH:
-                out += convert.push(Parser.arg1(command), Parser.arg2(command))
+                out += convert.push(Parser.arg1(command), Parser.arg2(command), self.filename)
             elif c_type == CommandType.POP:
-                out += convert.pop(Parser.arg1(command), Parser.arg2(command))
+                out += convert.pop(Parser.arg1(command), Parser.arg2(command), self.filename)
             elif c_type == CommandType.ARITHMETIC:
                 out += convert.arithmetic(command, counter)
             elif c_type == CommandType.LABEL:

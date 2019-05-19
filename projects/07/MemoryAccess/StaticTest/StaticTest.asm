@@ -23,29 +23,29 @@ M=D
 @SP
 AM=M-1
 D=M
-@24
+@StaticTest.8
 M=D
 // pop static 3
 @SP
 AM=M-1
 D=M
-@19
+@StaticTest.3
 M=D
 // pop static 1
 @SP
 AM=M-1
 D=M
-@17
+@StaticTest.1
 M=D
 // push static 3
-@19
+@StaticTest.3
 D=M
 @SP
 M=M+1
 A=M-1
 M=D
 // push static 1
-@17
+@StaticTest.1
 D=M
 @SP
 M=M+1
@@ -75,7 +75,7 @@ M=M+1
 A=M-1
 M=D
 // push static 8
-@24
+@StaticTest.8
 D=M
 @SP
 M=M+1

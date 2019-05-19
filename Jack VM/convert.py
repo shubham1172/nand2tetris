@@ -43,11 +43,12 @@ def _get_base_address(segment, index="0"):
         return segment_symbol[segment]
 
 
-def push(segment, index):
+def push(segment, index, filename=""):
     """
     push segment index
     :param segment: segment of memory
     :param index: index in the segment
+    :param filename: filename of VM file
     generic algorithm: addr = base_address + index, *SP = *addr, SP++
     assembly:
     @SG     // seg_ptr
@@ -62,7 +63,7 @@ def push(segment, index):
     """
     if segment == 'constant':
         set_data = ["D=A"]
-    elif segment in ['pointer', 'temp', 'static', 'internal']:
+    elif segment in ['pointer', 'static', 'temp', 'internal']:
         set_data = ["D=M"]
     else:
         set_data = [
@@ -72,7 +73,7 @@ def push(segment, index):
             "D=M"
         ]
     return [
-        "@%s" % _get_base_address(segment, index),
+        "@%s" % (_get_base_address(segment, index) if segment != 'static' else filename+"."+index),
         *set_data,
         "@SP",
         "M=M+1",
@@ -81,11 +82,12 @@ def push(segment, index):
     ]
 
 
-def pop(segment, index):
+def pop(segment, index, filename=""):
     """
     pop segment index
     :param segment: segment of memory
     :param index: index in the segment
+    :param filename: filename of VM file
     algorithm: addr = base_address + index, SP--, *addr = *SP
     @i      // D=i
     D=A
@@ -107,7 +109,7 @@ def pop(segment, index):
             "@SP",
             "AM=M-1",
             "D=M",
-            "@%s" % _get_base_address(segment, index),
+            "@%s" % (_get_base_address(segment, index) if segment != 'static' else filename+"."+index),
             "M=D"
         ]
     else:
@@ -188,6 +190,7 @@ def label(lab):
         "(%s)" % lab
     ]
 
+
 def goto(lab):
     """
     goto _label_
@@ -197,6 +200,7 @@ def goto(lab):
         "@%s" % lab,
         "0;JMP"
     ]
+
 
 def if_goto(lab):
     """
