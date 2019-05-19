@@ -258,15 +258,14 @@ push the value at _index_ in _segment_ to the stack <br>
 pop value off the stack and store at _index_ in _segment_<br>
 <sub>_segment_ can be - argument, local, static, this, that, pointer or temp.</sub><br>
 
-<br>
-Note, _index_ is a non-negative integer.
+<br>Note, _index_ is a non-negative integer.
 
 ### Data structures
 
 There are two implicit data structures managed by the Virtual Machine without any explicit implementation in the software. Their state is managed with carefully written pseudo commands.
 
 1. Stack - The working memory of the VM operations is a stack. All operations are facilitated using a stack.
-2. Heap- An area in RAM dedicated for storing objects and data structures like arrays.
+2. Heap - An area in RAM dedicated for storing objects and data structures like arrays.
 
 ## Program Control
 
@@ -284,12 +283,12 @@ We have two types of branching -
 |Unconditional | goto | `goto c`|
 |Conditional | if-goto | `if-goto c`|
 
-Note, conditional statement jumps to the given label if top of stack is not equal to zero. <br>
+Note, conditional statement jumps to the given label if top of the stack is not equal to zero. <br>
 Algorithm :
 ```
 pop x
 if (x != 0)
-    goto x
+    goto c
 ```
 
 ### Function Commands
