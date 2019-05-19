@@ -98,8 +98,7 @@ class Parser:
         """
         :return: second argument of command
         """
-        if Parser.command_type(command) in [
-            CommandType.PUSH, CommandType.POP, CommandType.FUNCTION, CommandType.CALL]:
+        if Parser.command_type(command) in [CommandType.PUSH, CommandType.POP, CommandType.FUNCTION, CommandType.CALL]:
             return command.split(" ")[2]
         else:
             raise Exception('Argument2 does not exist')
@@ -118,4 +117,10 @@ class Parser:
                 out += convert.pop(Parser.arg1(command), Parser.arg2(command))
             elif c_type == CommandType.ARITHMETIC:
                 out += convert.arithmetic(command, counter)
+            elif c_type == CommandType.LABEL:
+                out += convert.label(Parser.arg1(command))
+            elif c_type == CommandType.GOTO:
+                out += convert.goto(Parser.arg1(command))
+            elif c_type == CommandType.IF:
+                out += convert.if_goto(Parser.arg1(command))
         return [line + '\n' for line in out]

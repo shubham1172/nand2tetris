@@ -244,6 +244,7 @@ Memory commands can manipulate eight separate virtual memory segments. The comma
 |---|---|---|---|
 |pointer|THIS(0) or THAT(1)|alter base ptrs for this/that segments|<center>-</center>|
 |temp|R5-R12|global temporary variables|public access to everyone|
+|internal|R13-R15|internal variables used by VM| -
 |static|filename.index|store static variables of a file|all functions in the file share it|
 |constant|@index|store constants 0-(2^15-1) |emulated for consistency - pseudo segment|
 
@@ -251,13 +252,14 @@ These two commands can essentially realize any memory operation.
 
 <pre>push <i>segment index</i></pre>
 push the value at _index_ in _segment_ to the stack <br>
-_segment_ can be - argument, local, static, constant, this, that, pointer or temp.<br>
-_index_ is a non-negative integer.
+<sub>_segment_ can be - argument, local, static, constant, this, that, pointer or temp.</sub><br>
 
 <pre>pop <i>segment index</i></pre>
 pop value off the stack and store at _index_ in _segment_<br>
-_segment_ can be - argument, local, static, this, that, pointer or temp.<br>
-_index_ is a non-negative integer.
+<sub>_segment_ can be - argument, local, static, this, that, pointer or temp.</sub><br>
+
+<br>
+Note, _index_ is a non-negative integer.
 
 ### Data structures
 
@@ -267,6 +269,31 @@ There are two implicit data structures managed by the Virtual Machine without an
 2. Heap- An area in RAM dedicated for storing objects and data structures like arrays.
 
 ## Program Control
+
+Now that we have basic some functionality in our VM, it can do math and handle memory well. 
+However, it's still away from realizing more complex things like handling functions, go-tos and conditional statements.
+In this section we will implement everything that helps us controlling our program.
+
+### Branching
+
+Labels can be declared as `label c`. <br>
+We have two types of branching -
+
+| Type | Command | Usage |
+|---|---|---|
+|Unconditional | goto | `goto c`|
+|Conditional | if-goto | `if-goto c`|
+
+Note, conditional statement jumps to the given label if top of stack is not equal to zero. <br>
+Algorithm :
+```
+pop x
+if (x != 0)
+    goto x
+```
+
+### Function Commands
+
 
 ## JVM and Hack
 
@@ -297,4 +324,3 @@ The first 16 registers can be addressed using the assembly as R0-R15. However, V
 |R4|THAT|Points to _that_ segment (in heap)|
 |R5-R12|-|Holds content of _temp_ segment|
 |R13-R15|-|Can be used as general-purpose registers|
-

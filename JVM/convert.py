@@ -177,3 +177,40 @@ def arithmetic(operation, counter):
             ]
     out += push('internal', 2)     # push R15
     return out
+
+
+def label(lab):
+    """
+    label _label_
+    :param lab: label
+    """
+    return [
+        "(%s)" % lab
+    ]
+
+def goto(lab):
+    """
+    goto _label_
+    :param lab: label
+    """
+    return [
+        "@%s" % lab,
+        "0;JMP"
+    ]
+
+def if_goto(lab):
+    """
+    if-goto label
+    :param lab: label
+    algorithm:
+    pop R15
+    if R15 != 0, goto label
+    else goto next command
+    """
+    return [
+        *pop('internal', 2),    # pop R15
+        "@15",
+        "D=M",
+        "@%s" % lab,
+        "D;JNE"
+    ]
