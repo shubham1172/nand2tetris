@@ -194,8 +194,8 @@ An assembler is a piece of software that converts an assembly code into the devi
 To assemble a program: <br> 
 ```$ assembler.py /path/to/file.asm``` <br>
 
-All mnemonic lookup hashtables are defined in [convert](./assembler/convert.py).<br>
-All predefined symbols and symbol hashtable are defined in [symbol_table](./assembler/symbol_table.py). 
+All mnemonic lookup hashtables are defined in [convert](./Hack assembler/convert.py).<br>
+All predefined symbols and symbol hashtable are defined in [symbol_table](./Hack assembler/symbol_table.py). 
 
 # Jack Virtual Machine
 A virtual machine facilitates a two-tier compilation for our code. It handles intermediate logic and allows the high-level language to leverage its architecture than compile to raw assembly which is a really complex task. A VM translator is realized which translates program in the VM language to the Hack assembly. It is stack-based and supports four types of commands:
@@ -323,3 +323,8 @@ The first 16 registers can be addressed using the assembly as R0-R15. However, V
 |R4|THAT|Points to _that_ segment (in heap)|
 |R5-R12|-|Holds content of _temp_ segment|
 |R13-R15|-|Can be used as general-purpose registers|
+
+# Future
+
+Uhm, I stopped working on this because I got bored.
+To be continued...
